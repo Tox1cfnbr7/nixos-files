@@ -66,8 +66,8 @@ fonts = {
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
 
-
-  
+  # For binaries that are unkown
+  programs.nix-ld.enable = true;
 
   # Configure keymap in X11
   services.xserver.xkb.layout = "ch";
@@ -90,7 +90,7 @@ fonts = {
   # Define a user account. Don't forget to set a password with ‘passwd’.
    users.users.tox1c = {
      isNormalUser = true;
-     extraGroups = [ "wheel"]; # Enable ‘sudo’ for the user.
+     extraGroups = [ "wheel" "docker" "wireshark" ]; # Enable ‘sudo’ for the user. users.
      packages = with pkgs; [
        tree
      ];
@@ -112,7 +112,8 @@ fonts = {
     };
   };
 
-  
+  virtualisation.docker.enable = true;
+
   programs.dconf.enable = true;
   programs.firefox.enable = true;
   programs.sway.enable = true;
@@ -120,6 +121,8 @@ fonts = {
   programs.neovim.enable = true;
   programs.git.enable = true;
   programs.waybar.enable = true;
+  programs.wireshark.enable = true;
+  programs.wireshark.package = pkgs.wireshark;
 
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
@@ -127,7 +130,6 @@ environment.systemPackages = with pkgs; [
   vim
   wget
   alacritty
-  foot
   wmenu
   vscode
   file
@@ -136,8 +138,6 @@ environment.systemPackages = with pkgs; [
   spotify
   nwg-displays
   obsidian
-  google-chrome
-  sublime
   proton-vpn
   burpsuite
   blueman
@@ -146,23 +146,84 @@ environment.systemPackages = with pkgs; [
   tshark
   pavucontrol
   thunar
-  bat
   zsh
   zip
-  nwg-look
   fastfetch
   duf
   eza
   fzf
-  nwg-look
   adw-gtk3
   papirus-icon-theme
-  bibata-cursors
   wlsunset
   glib
   keepassxc
   rofi
   bibata-cursors
+  loupe
+  gcc
+  _7zz
+  bat
+  btop
+  tree
+  trash-cli
+  hexedit
+  imagemagick
+  hwinfo
+  parted
+  nettools
+  curl
+  man-pages
+  strace
+  ltrace
+  dunst
+  brightnessctl
+  fuzzel
+  nwg-look
+  clang
+  gnumake
+  binutils
+  bison
+  go
+  lua
+  nodejs      
+  python3
+  ruby
+  jdk
+  rustup
+  sqlite
+  docker-compose
+  gdb
+  gef
+  radare2
+  checksec
+  binwalk
+  python3Packages.ropgadget
+  nmap
+  tcpdump
+  traceroute
+  whois
+  bind          
+  socat
+  openvpn
+  wireguard-tools
+  freerdp
+  remmina
+  rpcbind
+  krb5
+  metasploit
+  sqlmap
+  nikto
+  thc-hydra
+  john
+  hashcat
+  hashid
+  wfuzz
+  feroxbuster
+  whatweb
+  enum4linux
+  dnsenum
+  evil-winrm
+  seclists
 ];
 
   # Some programs need SUID wrappers, can be configured further or are
