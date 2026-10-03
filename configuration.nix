@@ -119,7 +119,7 @@ fonts = {
   programs.sway.extraOptions = [ "--unsupported-gpu" ];
   programs.neovim.enable = true;
   programs.git.enable = true;
-  
+  programs.waybar.enable = true;
 
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
@@ -161,6 +161,8 @@ environment.systemPackages = with pkgs; [
   wlsunset
   glib
   keepassxc
+  rofi
+  bibata-cursors
 ];
 
   # Some programs need SUID wrappers, can be configured further or are
