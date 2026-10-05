@@ -4,6 +4,30 @@
 
 { config, lib, pkgs, ... }:
 
+let
+  silent = pkgs.stdenvNoCC.mkDerivation {
+    pname = "sddm-silent-theme";
+    version = "git";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "uiriansan";
+      repo = "SilentSDDM";
+      rev = "main";
+      hash = "sha256-TNGAElCnjIA4OzTtn0VuCk6pXKd92kBkz+5NjHLwbkM=";
+    };
+
+    postPatch = ''
+      sed -i 's|^ConfigFile=.*|ConfigFile=configs/rei.conf|' metadata.desktop
+    '';
+
+    installPhase = ''
+      mkdir -p $out/share/sddm/themes/silent $out/share/fonts
+      cp -r . $out/share/sddm/themes/silent/
+      cp -r fonts/* $out/share/fonts/
+    '';
+  };
+in
+
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -114,13 +138,15 @@ fonts = {
 
   virtualisation.docker.enable = true;
 
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   programs.dconf.enable = true;
   programs.firefox.enable = true;
   programs.sway.enable = true;
   programs.sway.extraOptions = [ "--unsupported-gpu" ];
   programs.neovim.enable = true;
   programs.git.enable = true;
-  programs.waybar.enable = true;
+  programs.waybar.enable = false;
   programs.wireshark.enable = true;
   programs.wireshark.package = pkgs.wireshark;
 
@@ -133,6 +159,7 @@ environment.systemPackages = with pkgs; [
   wmenu
   vscode
   file
+  silent 
   exiftool
   discord
   spotify
@@ -187,6 +214,7 @@ environment.systemPackages = with pkgs; [
   lua
   nodejs      
   python3
+  pipx
   ruby
   jdk
   rustup
@@ -224,6 +252,9 @@ environment.systemPackages = with pkgs; [
   dnsenum
   evil-winrm
   seclists
+  dmidecode
+  unzip
+  kdePackages.sddm
 ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -250,7 +281,26 @@ environment.systemPackages = with pkgs; [
     enable = true;
     powerOnBoot = true;
   };
+  # ----------------------- SDDM Silent Theme Section -----------------------------------------
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+    package = pkgs.kdePackages.sddm;
+    theme = "silent";
+    extraPackages = with pkgs.kdePackages; [
+      qtsvg
+      qtmultimedia
+      qtvirtualkeyboard
+      qtimageformats
+    ];
+    settings.General = {
+      InputMethod = "qtvirtualkeyboard";
+      GreeterEnvironment = "QML2_IMPORT_PATH=${silent}/share/sddm/themes/silent/components/,QT_IM_MODULE=qtvirtualkeyboard";
+    };
+  };
 
+  # -----------------------------------------------------------------------
+  
   services.blueman.enable = true;
 
   # Copy the NixOS configuration file and link it from the resulting system
