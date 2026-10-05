@@ -2,9 +2,11 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 let
+  q = pkgs.kdePackages;
+
   silent = pkgs.stdenvNoCC.mkDerivation {
     pname = "sddm-silent-theme";
     version = "git";
@@ -16,8 +18,19 @@ let
       hash = "sha256-TNGAElCnjIA4OzTtn0VuCk6pXKd92kBkz+5NjHLwbkM=";
     };
 
+    propagatedBuildInputs = [
+      q.qtsvg
+      q.qtmultimedia
+      q.qtvirtualkeyboard
+      q.qtimageformats
+      q.qt5compat
+      q.qtdeclarative
+    ];
+
+    dontWrapQtApps = true;
+    # Change this for diffrent themes can be found in /run/current-system/sw/share/sddm/themes/silent/configs/
     postPatch = ''
-      sed -i 's|^ConfigFile=.*|ConfigFile=configs/rei.conf|' metadata.desktop
+      sed -i 's|^ConfigFile=.*|ConfigFile=configs/catppuccin-macchiato.conf|' metadata.desktop
     '';
 
     installPhase = ''
@@ -26,6 +39,19 @@ let
       cp -r fonts/* $out/share/fonts/
     '';
   };
+
+  qtPkgs = [
+    q.qtsvg
+    q.qtmultimedia
+    q.qtvirtualkeyboard
+    q.qtimageformats
+    q.qt5compat
+    q.qtdeclarative
+  ];
+
+  qmlPath    = lib.concatMapStringsSep ":" (p: "${p}/lib/qt-6/qml") qtPkgs;
+  pluginPath = lib.concatMapStringsSep ":" (p: "${p}/lib/qt-6/plugins") qtPkgs;
+  themeQml   = "${silent}/share/sddm/themes/silent/components";
 in
 
 {
@@ -164,6 +190,7 @@ environment.systemPackages = with pkgs; [
   discord
   spotify
   nwg-displays
+  kdePackages.qtmultimedia
   obsidian
   proton-vpn
   burpsuite
@@ -254,7 +281,6 @@ environment.systemPackages = with pkgs; [
   seclists
   dmidecode
   unzip
-  kdePackages.sddm
 ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -282,23 +308,30 @@ environment.systemPackages = with pkgs; [
     powerOnBoot = true;
   };
   # ----------------------- SDDM Silent Theme Section -----------------------------------------
+  systemd.services.display-manager.environment = {
+    QML2_IMPORT_PATH = "${themeQml}:${qmlPath}";
+    QML_IMPORT_PATH  = "${themeQml}:${qmlPath}";
+    QT_PLUGIN_PATH   = pluginPath;
+  };
+  
   services.displayManager.sddm = {
     enable = true;
     wayland.enable = true;
-    package = pkgs.kdePackages.sddm;
+    package = q.sddm;
     theme = "silent";
-    extraPackages = with pkgs.kdePackages; [
-      qtsvg
-      qtmultimedia
-      qtvirtualkeyboard
-      qtimageformats
-    ];
+
+    extraPackages = [ silent ] ++ qtPkgs;
+
     settings.General = {
       InputMethod = "qtvirtualkeyboard";
-      GreeterEnvironment = "QML2_IMPORT_PATH=${silent}/share/sddm/themes/silent/components/,QT_IM_MODULE=qtvirtualkeyboard";
+      GreeterEnvironment = lib.concatStringsSep "," [
+        "QML2_IMPORT_PATH=${themeQml}:${qmlPath}"
+        "QML_IMPORT_PATH=${themeQml}:${qmlPath}"
+        "QT_PLUGIN_PATH=${pluginPath}"
+        "QT_IM_MODULE=qtvirtualkeyboard"
+      ];
     };
   };
-
   # -----------------------------------------------------------------------
   
   services.blueman.enable = true;
