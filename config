@@ -16,21 +16,27 @@ set $right l
 # Your preferred terminal emulator
 set $term alacritty
 # Your preferred application launcher
-set $menu wmenu-run
+set $menu rofi -show run
 set $firefox firefox
+set $editor code
 ### Output configuration
+
+### Audio Configuration
+set $audio_control pavucontrol
+bindsym $mod+x exec $audio_control
+
 
 default_border none
 default_floating_border none
 # Default wallpaper (more resolutions are available in /run/current-system/sw/share/backgrounds/sway/)
-output * bg /home/tox1c/Downloads/a_group_of_people_standing_in_a_room_with_a_large_globe.jpg fill
+output * bg /home/tox1c/.config/sway/wallpappers/a_group_of_people_standing_in_a_room_with_a_large_globe.jpg fill
 #
 # Example configuration:
 #
 #   output HDMI-A-1 resolution 1920x1080 position 1920,0
 #
 # You can get the names of your outputs by running: swaymsg -t get_outputs
-output DP-3 mode 3440x1440@179.989Hz
+output DP-3 mode 3440x1440@179.989Hz scale 1 scale_filter smart
 ### Idle configuration
 #
 # Example configuration:
@@ -72,8 +78,9 @@ gaps outer 1
     # Start a terminal
     bindsym $mod+t exec $term
 
-     bindsym $mod+f exec $firefox
+    bindsym $mod+f exec $firefox
 
+    bindsym $mod+c exec $editor
     # Kill focused window
     bindsym $mod+q kill
 
@@ -86,6 +93,7 @@ gaps outer 1
     # Change normal to inverse to use left mouse button for resizing and right
     # mouse button for dragging.
     floating_modifier $mod normal
+    seat seat0 xcursor_theme Bibata-Modern-Classic 24
 
     # Reload the configuration file
     bindsym $mod+Shift+c reload
@@ -154,14 +162,13 @@ gaps outer 1
 
     # Switch the current container between different layout styles
     bindsym $mod+s layout stacking
-    bindsym $mod+w layout tabbed
     bindsym $mod+e layout toggle split
 
     # Make the current focus fullscreen
     bindsym $mod+return fullscreen
 
     # Toggle the current focus between tiling and floating mode
-    bindsym $mod+Shift+space floating toggle
+    bindsym $mod+w floating toggle
 
     # Swap focus between the tiling area and the floating area
     bindsym $mod+space focus mode_toggle
@@ -236,16 +243,22 @@ bindsym $mod+n exec pkill wlsunset || wlsunset -l 47.4 -L 8.5 -t 4000 -T 4001
 # Read `man 5 sway-bar` for more information about this section.
 bar {
     position top
+    mode dock
+    font pango:CaskaydiaCove Nerd Font Mono 
+    workspace_min_width 10
 
-    # When the status_command prints a new line to stdout, swaybar updates.
-    # The default just shows the current date and time.
-    status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+    status_command ~/.config/sway/status.sh
 
     colors {
+        background #09080a
         statusline #ffffff
-        background #323232
-        inactive_workspace #32323200 #32323200 #5c5c5c
+        separator  #5B4F75
+
+        #                  Rand    Hintergrund  Text
+        focused_workspace  #B794F4 #B794F4      #15111F
+        active_workspace   #221B31 #221B31      #ffffff
+        inactive_workspace #09080a #09080a      #5B4F75
+        urgent_workspace   #F38BA8 #F38BA8      #15111F
     }
 }
-
 include /etc/sway/config.d/*

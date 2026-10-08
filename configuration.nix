@@ -163,6 +163,7 @@ fonts = {
   };
 
   virtualisation.docker.enable = true;
+  virtualisation.vmware.host.enable = true;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -200,6 +201,7 @@ environment.systemPackages = with pkgs; [
   tshark
   pavucontrol
   thunar
+  p7zip
   zsh
   zip
   fastfetch
